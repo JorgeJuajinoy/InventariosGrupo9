@@ -5,17 +5,14 @@ header("Content-Type: application/json");
 
 include 'conexion.php';
 
-// Depuración: ver qué llega
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Ver qué llega desde React
-// ⚠️ Activa esto solo para probar, luego elimínalo
-// var_dump($_POST);
-// exit;
+// Leer datos JSON del body
+$data = json_decode(file_get_contents("php://input"), true);
 
-$correo = $_POST['correo'] ?? '';
-$clave  = $_POST['clave'] ?? '';
+$correo = $data['correo'] ?? '';
+$clave  = $data['clave'] ?? '';
 
 if (!$correo || !$clave) {
     echo json_encode(["exito" => false, "mensaje" => "Correo y contraseña requeridos"]);
@@ -35,9 +32,7 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// ⚠️ Actualmente las contraseñas están en texto plano en tu BD.
-// Lo ideal es migrar a password_hash() y password_verify().
-// Por ahora comparamos directamente:
+// Comparar contraseña (texto plano por ahora)
 if ($clave !== $user['contrasena']) {
     echo json_encode(["exito" => false, "mensaje" => "Contraseña incorrecta"]);
     exit;
